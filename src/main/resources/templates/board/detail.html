@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:th="http://www.w3.org/1999/xhtml" xmlns:padding="http://www.w3.org/1999/xhtml"
+      xmlns:c="http://www.w3.org/1999/XSL/Transform" xmlns:v-on="http://www.w3.org/1999/xhtml"
+      xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-model="http://www.w3.org/1999/xhtml">
+
+<head th:replace="/common/header.html :: head">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+        * {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+    </style>
+</head>
+
+
+<body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
+<div class="site-mobile-menu site-navbar-target">
+    <div class="site-mobile-menu-header">
+        <div class="site-mobile-menu-close mt-3">
+            <span class="icon-close2 js-menu-toggle"></span>
+        </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+</div>
+
+
+<header class="site-navbar py-4 js-sticky-header site-navbar-target"role="banner"
+        th:replace="/common/header.html :: header">
+</header>
+
+<div class="site-section section-2" id="classes-section">
+    <div class="site-section bg-white" id="contact-section">
+        <div class="container">
+
+
+            <div class="wrap ftco-animate" style="border:5px solid black; background-color: white; margin-bottom: 30px;">
+                <br>
+                <p th:inline="text" class="float-lg-right" style="color:#646464;">
+                    작성일 : [[${#temporals.format(boardDto.createdDate, 'yyyy-MM-dd HH:mm')}]]
+                    &nbsp; &nbsp;
+                    조회수 : [[${boardDto.bcount}]] &nbsp;
+                    찜수 : [[${boardDto.sumlike}]]</p>
+                <div class="content" style="padding-left:8%; padding-right:8%; padding-top: 5%; padding-bottom: 10%;">
+                    <!-- 글 제목 -->
+                    <h1 style="text-align: center; margin-bottom: 20px; color: black" th:text="${boardDto.title}"></h1>
+                    <!-- 작성자 -->
+                    <p v-bind:id="uuid" v-bind:value="[[${ boardDto.writer}]]"></p>
+
+                    <form  class="float-lg-left" th:action="@{'/post/'+${boardDto.id}}" method="POST">
+                        <input type="hidden" name="board" th:value="${boardDto.id}"/>
+                        <input type="hidden" name="user" th:value="${userId}"/>
+                        <input type="hidden" name="status" th:value="${'1'}"/>
+                        <input type="submit" style="color:#646464;" class=" btn btn-outline-primary"
+                               id="button1" onclick="button1_click();" value="찜하기"/>
+
+                    </form>
+                    <script>
+                        function button1_click() {
+                            alert("이 게시물이 찜되었습니다.\n내가 좋아하는 게시물로 이동합니다.\n")
+                            alert("중복된 찜은 지워집니다.")
+                        }
+                    </script>
+
+
+                    <!--                    채팅방 버튼-->
+
+                    <div class="float-lg-left" id="app" v-cloak>
+                        <!--                        <form th:action="@{'/chat/room'}" method="POST">-->
+                        <input type="hidden" class="form-control" v-model="room_name"
+                               v-on:keyup.enter="createRoom">
+
+                        <button class=" btn-md btn btn-outline-primary" style="color:#646464;"
+                                type="submit" @click="createRoom">1대1상담하기
+                        </button>
+
+
+                        <!--                        </form>-->
+
+
+                        <!--                        <input type="hidden" class="form-control" th:name="name"-->
+                        <!--                               th:value="${boardDto.writer} 트레이너님과 ${userId}님의 채팅">-->
+                        <!--                        <input type="hidden" class="form-control" th:name="roomId"-->
+                        <!--                               th:value="${item.userCount}">-->
+
+                    </div>
+
+
+                    <!--                    <a th:href="@{/chat/room}">asdasdas</a>-->
+
+
+                    <h3 style="text-align: right; margin-right: 10px; color: black" th:text="${boardDto.writer}"></h3>
+                    <h1>[[${boardDto.id}]]</h1>
+                    <hr style="border: solid 2px #48d494;">
+
+                    <img th:src="@{/images/media/} + ${boardDto.imgname}" alt="Image" width="400px" height="400px">
+
+                    <!-- 글 나눔선  -->
+                    <hr style="border: solid 2px #48d494;">
+                    <strong style="color: black; font-size: 20px">소속 회사 이름</strong>
+                    <p th:inline="text"style="color: #646464; font-size: 15px">[[${boardDto.companyname}]]</p>
+                    <hr style="border: solid 2px #48d494;">
+                    <strong style="color: black; font-size: 20px">소속 전화번호</strong>
+                    <p th:inline="text"style="color: #646464; font-size: 15px">[[${boardDto.companyphone}]]</p>
+                    <hr style="border: solid 2px #48d494;">
+                    <strong style="color: black; font-size: 20px">소속 주소</strong>
+                    <p th:inline="text"style="color: #646464; font-size: 15px">[[${boardDto.address}]]</p>
+
+                    <hr style="border: solid 2px #48d494;">
+                    <strong style="color: black; font-size: 20px">내용</strong>
+                    <!-- 글 내용 -->
+                    <p th:utext="${boardDto.content}"></p>
+
+                    <!-- 글 나눔선  -->
+                    <hr style="border: solid 2px #48d494;">
+                    <hr>
+                    <div th:if="${boardDto.writer.toString().equals(userId)}" class="text-right">
+                        <!-- 수정하기 -->
+                        <div style="text-align: right; margin-right: 10px;">
+                            <a th:href="@{'/post/edit/' + ${boardDto.id}}">
+                                <button type="button" class="float-lg-right btn btn-outline-primary" style="color:#646464;">수정하기</button>
+                            </a>
+                            <!-- 삭제하기 -->
+                            <form id="delete-form" th:action="@{'/post/' + ${boardDto.id}}" method="post"><input
+                                    type="hidden" name="_method" value="delete"/>
+                                <button class="float-lg-right btn btn-outline-primary" style="color:#646464;" onclick="button2_click();">삭제하기
+                                </button>
+                            </form>
+                            <script>
+                                function button2_click() {
+                                    alert("게시물이 삭제되었습니다.")
+
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <!-- 변수 셋팅 -->
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var boardDto = /*[[${boardDto}]]*/ "";
+                /*]]>*/
+            </script>
+
+            <!-- script -->
+            <script th:inline="javascript" th:src="@{/js/board.js}"></script>
+            </h1>
+        </div>
+    </div>
+</div>
+
+
+<footer class="footer-section" th:replace="/common/footer.html :: footer">
+</footer>
+
+<!-- .site-wrap -->
+
+<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+<script th:src="@{/js/jquery-migrate-3.0.1.min.js}"></script>
+<script th:src="@{/js/jquery-ui.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/owl.carousel.min.js}"></script>
+<script th:src="@{/js/jquery.stellar.min.js}"></script>
+<script th:src="@{/js/jquery.countdown.min.js}"></script>
+<script th:src="@{/js/bootstrap-datepicker.min.js}"></script>
+<script th:src="@{/js/jquery.easing.1.3.js}"></script>
+<script th:src="@{/js/aos.js}"></script>
+<script th:src="@{/js/jquery.fancybox.min.js}"></script>
+<script th:src="@{/js/jquery.sticky.js}"></script>
+<script th:src="@{/js/jquery.mb.YTPlayer.min.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script th:src="@{https://code.jquery.com/jquery-3.5.1.slim.min.js}"
+        th:integrity="@{sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj}"
+        th:crossorigin="@{anonymous}"></script>
+<script th:src="@{https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js}"
+        th:integrity="@{sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN}"
+        th:crossorigin="@{anonymous}"></script>
+<script th:src="@{https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js}"
+        th:integrity="@{sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV}"
+        th:crossorigin="@{anonymous}"></script>
+
+</div>
+
+<!--채팅 js-->
+<!-- room_name : '[[${boardDto.writer}]] 님과 [[${userId}]]님의 채팅' 채팅방 이름 설정 구문  -->
+<script>
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            room_name: '[[${boardDto.writer}]] 트레이너님과 [[${userId}]]님의 채팅',
+            chatrooms: []
+        },
+        created() {
+            this.findAllRoom();
+        },
+        methods: {
+            findAllRoom: function () {
+                axios.get('/chat/rooms').then(response => {
+                    this.chatrooms = response.data;
+                });
+            },
+            createRoom: function () {
+                if ("" === this.room_name) {
+                    alert("방 제목을 입력해 주십시요.");
+                    return;
+                } else {
+                    var params = new URLSearchParams();
+                    params.append("name", this.room_name);
+                    axios.post('/chat/room', params)
+                        .then(
+                            response => {
+                                alert(response.data.name + "방 개설")
+                                this.room_name = '';
+                                this.findAllRoom();
+                                location.href = "/chat/room/";
+                            }
+                        )
+                        .catch(response => {
+                            alert("채팅방 개설에 실패하였습니다.");
+                        });
+                }
+            },
+            enterRoom: function (roomid, roomName) {
+                localStorage.setItem('wschat.roomid', roomid);
+                localStorage.setItem('wschat.roomName', roomName);
+                location.href = "/chat/room/enter/" + roomid;
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
